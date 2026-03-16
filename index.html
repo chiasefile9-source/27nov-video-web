@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Link Video</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; background: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #218838; }
+        ul { list-style: none; padding: 0; margin-top: 20px; }
+        li { background: #eee; margin-bottom: 5px; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; }
+        a { color: #007bff; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Thêm Video Mới</h2>
+    <input type="text" id="videoTitle" placeholder="Nhập tên video...">
+    <input type="text" id="videoLink" placeholder="Dán link video (YouTube, Drive...)">
+    <button onclick="addVideo()">Lưu Video</button>
+
+    <h3>Danh sách của bạn:</h3>
+    <ul id="videoList"></ul>
+</div>
+
+<script>
+    function addVideo() {
+        const title = document.getElementById('videoTitle').value;
+        const link = document.getElementById('videoLink').value;
+
+        if (title === '' || link === '') {
+            alert("Vui lòng nhập đầy đủ thông tin!");
+            return;
+        }
+
+        const list = document.getElementById('videoList');
+        const listItem = document.createElement('li');
+        
+        listItem.innerHTML = `
+            <span>${title}</span>
+            <a href="${link}" target="_blank">Xem ngay</a>
+        `;
+        
+        list.appendChild(listItem);
+
+        // Xóa ô nhập sau khi thêm
+        document.getElementById('videoTitle').value = '';
+        document.getElementById('videoLink').value = '';
+    }
+</script>
+
+</body>
+</html>
