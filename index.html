@@ -5,75 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Video & Ảnh - Có Bảo Mật</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #1c1e21; text-align: center; }
+        /* Cấu trúc chung */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f0f2f5; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        h2, h3 { color: #1c1e21; text-align: center; }
         
         /* Khu vực nhập liệu */
-        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; }
-        input, textarea { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .input-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+            background: #fafafa; 
+        }
+        input, textarea { 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            width: 100%;
+            box-sizing: border-box;
+        }
         textarea { height: 80px; resize: vertical; }
         
         /* Ô mật khẩu nổi bật */
         .pwd-input { border: 2px solid #fb3958; background: #fff5f6; }
         
-        button#addBtn { padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button#addBtn:hover { background: #166fe5; transform: translateY(-2px); }
+        button { 
+            padding: 12px; 
+            color: white; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.3s; 
+        }
+        #addBtn { background: #1877f2; }
+        #addBtn:hover { background: #166fe5; transform: translateY(-2px); }
+        .simple-add-btn { background: #28a745; margin-bottom: 20px; }
 
         /* Danh sách bài đăng */
-        #postList { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; list-style: none; padding: 0; margin-top: 30px; }
+        #postList { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+            list-style: none; 
+            padding: 0; 
+            margin-top: 30px; 
+        }
         @media (max-width: 600px) { #postList { grid-template-columns: 1fr; } }
         
-        .post-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; animation: fadeIn 0.5s; }
+        .post-card { 
+            background: #fff; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            animation: fadeIn 0.5s; 
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .post-image { width: 100%; height: 180px; object-fit: cover; background: #eee; }
         .post-content { padding: 15px; flex-grow: 1; }
         .post-title { font-weight: bold; font-size: 18px; color: #1c1e21; display: block; margin-bottom: 8px; }
-        .post-links { margin-top: 10px; }
         .post-links a { display: block; color: #007bff; text-decoration: none; margin-bottom: 5px; font-size: 14px; }
-        .post-links a:hover { text-decoration: underline; }
         
-        /* Nút chức năng */
-        .post-actions { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-top: 1px solid #eee; background: #f9f9f9; }
-        .btn-like { background: none; border: none; cursor: pointer; color: #65676b; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        /* Danh sách video đơn giản */
+        #videoList { list-style: none; padding: 0; }
+        #videoList li { 
+            background: #eee; 
+            margin-bottom: 5px; 
+            padding: 10px; 
+            border-radius: 4px; 
+            display: flex; 
+            justify-content: space-between; 
+        }
+
+        .post-actions { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px 15px; 
+            border-top: 1px solid #eee; 
+            background: #f9f9f9; 
+        }
+        .btn-like { background: none; color: #65676b; }
         .btn-like.liked { color: #1877f2; }
-        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete { background: #ff4d4d; padding: 6px 12px; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🚀 Đăng Nội Dung Mới</h2>
-    
+    <h2>Thêm Video Nhanh</h2>
+    <input type="text" id="videoTitle" placeholder="Nhập tên video...">
+    <input type="text" id="videoLink" placeholder="Dán link video (YouTube, Drive...)">
+    <button class="simple-add-btn" onclick="addVideo()">Lưu Vào Danh Sách</button>
+    <ul id="videoList"></ul>
+
+    <hr>
+
+    <h2>🚀 Đăng Bài Viết Mới</h2>
     <div class="input-group">
         <input type="text" id="title" placeholder="Tiêu đề bài viết...">
         <input type="text" id="imageUrl" placeholder="Link ảnh minh họa (URL)...">
         <textarea id="multiLinks" placeholder="Dán các link video vào đây (mỗi link 1 dòng)..."></textarea>
-        
         <input type="password" id="password" class="pwd-input" placeholder="Nhập mã bảo mật để đăng bài...">
-        
         <button id="addBtn" onclick="createPost()">Đăng Bài Lên Hệ Thống</button>
     </div>
 
-    <hr>
+    <h3>Bảng Tin Nội Dung</h3>
     <ul id="postList"></ul>
 </div>
 
 <script>
+    // Hàm 1: Thêm video vào danh sách đơn giản
+    function addVideo() {
+        const title = document.getElementById('videoTitle').value;
+        const link = document.getElementById('videoLink').value;
+
+        if (title === '' || link === '') {
+            alert("Vui lòng nhập đầy đủ thông tin!");
+            return;
+        }
+
+        const list = document.getElementById('videoList');
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+            <span>${title}</span>
+            <a href="${link}" target="_blank" style="color: #007bff; text-decoration: none;">Xem ngay</a>
+        `;
+        list.appendChild(listItem);
+
+        // Xóa form
+        document.getElementById('videoTitle').value = '';
+        document.getElementById('videoLink').value = '';
+    }
+
+    // Hàm 2: Tạo bài đăng đầy đủ (có mật khẩu)
     function createPost() {
         const title = document.getElementById('title').value;
         const imageUrl = document.getElementById('imageUrl').value || 'https://via.placeholder.com/400x200?text=No+Image';
         const password = document.getElementById('password').value;
         const rawLinks = document.getElementById('multiLinks').value.split('\n');
         
-        // Kiểm tra mật khẩu
+        // 1. Kiểm tra mật khẩu
         if (password !== "27nov.tv") {
             alert("❌ Mật khẩu sai! Bạn không có quyền đăng bài.");
             return;
         }
 
-        // Kiểm tra nội dung trống
+        // 2. Kiểm tra nội dung trống
         const links = rawLinks.filter(link => link.trim() !== "");
         if (!title || links.length === 0) {
             alert("Vui lòng nhập tiêu đề và ít nhất một đường link!");
@@ -89,7 +187,7 @@
                 <div class="post-content">
                     <span class="post-title">${title}</span>
                     <div class="post-links">
-                        ${links.map((link, index) => `<a href="${link}" target="_blank">▶️ Xem Video ${index + 1}</a>`).join('')}
+                        ${links.map((link, index) => `<a href="${link.trim()}" target="_blank">▶️ Xem Video ${index + 1}</a>`).join('')}
                     </div>
                 </div>
                 <div class="post-actions">
@@ -101,12 +199,11 @@
 
         postList.insertAdjacentHTML('afterbegin', postHTML);
 
-        // Xóa sạch form sau khi đăng thành công
+        // 3. Xóa sạch form
         document.getElementById('title').value = '';
         document.getElementById('imageUrl').value = '';
         document.getElementById('multiLinks').value = '';
         document.getElementById('password').value = '';
-        
         alert("✅ Đăng bài thành công!");
     }
 
@@ -119,7 +216,8 @@
 
     function deletePost(id) {
         if (confirm("Bạn muốn gỡ bỏ bài đăng này?")) {
-            document.getElementById(`post-${id}`).remove();
+            const post = document.getElementById(`post-${id}`);
+            if(post) post.remove();
         }
     }
 </script>
