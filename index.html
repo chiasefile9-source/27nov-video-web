@@ -3,223 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Video & Ảnh - Có Bảo Mật</title>
+    <title>Hệ Thống Video Công Khai</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <style>
-        /* Cấu trúc chung */
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #f0f2f5; 
-            margin: 0; 
-            padding: 20px; 
-        }
-        .container { 
-            max-width: 800px; 
-            margin: auto; 
-            background: white; 
-            padding: 25px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-        }
-        h2, h3 { color: #1c1e21; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; padding: 20px; border: 2px dashed #1877f2; border-radius: 8px; background: #faffff; }
+        input, textarea { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
+        button { padding: 12px; background: #1877f2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
         
-        /* Khu vực nhập liệu */
-        .input-group { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-            margin-bottom: 20px; 
-            padding: 15px; 
-            border: 1px solid #e0e0e0; 
-            border-radius: 8px; 
-            background: #fafafa; 
-        }
-        input, textarea { 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 6px; 
-            font-size: 14px; 
-            width: 100%;
-            box-sizing: border-box;
-        }
-        textarea { height: 80px; resize: vertical; }
-        
-        /* Ô mật khẩu nổi bật */
-        .pwd-input { border: 2px solid #fb3958; background: #fff5f6; }
-        
-        button { 
-            padding: 12px; 
-            color: white; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s; 
-        }
-        #addBtn { background: #1877f2; }
-        #addBtn:hover { background: #166fe5; transform: translateY(-2px); }
-        .simple-add-btn { background: #28a745; margin-bottom: 20px; }
-
-        /* Danh sách bài đăng */
-        #postList { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-            list-style: none; 
-            padding: 0; 
-            margin-top: 30px; 
-        }
-        @media (max-width: 600px) { #postList { grid-template-columns: 1fr; } }
-        
-        .post-card { 
-            background: #fff; 
-            border: 1px solid #e0e0e0; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            animation: fadeIn 0.5s; 
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .post-image { width: 100%; height: 180px; object-fit: cover; background: #eee; }
-        .post-content { padding: 15px; flex-grow: 1; }
-        .post-title { font-weight: bold; font-size: 18px; color: #1c1e21; display: block; margin-bottom: 8px; }
-        .post-links a { display: block; color: #007bff; text-decoration: none; margin-bottom: 5px; font-size: 14px; }
-        
-        /* Danh sách video đơn giản */
-        #videoList { list-style: none; padding: 0; }
-        #videoList li { 
-            background: #eee; 
-            margin-bottom: 5px; 
-            padding: 10px; 
-            border-radius: 4px; 
-            display: flex; 
-            justify-content: space-between; 
-        }
-
-        .post-actions { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 10px 15px; 
-            border-top: 1px solid #eee; 
-            background: #f9f9f9; 
-        }
-        .btn-like { background: none; color: #65676b; }
-        .btn-like.liked { color: #1877f2; }
-        .btn-delete { background: #ff4d4d; padding: 6px 12px; font-size: 12px; }
+        /* Danh sách hiển thị công khai */
+        .public-feed { margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px; }
+        .post-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .post-image { width: 100%; height: 250px; object-fit: cover; }
+        .post-content { padding: 15px; }
+        .post-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; display: block; }
+        .video-link { display: block; color: #1877f2; text-decoration: none; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .video-link:hover { background: #f9f9f9; }
+        .post-time { font-size: 12px; color: #888; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Thêm Video Nhanh</h2>
-    <input type="text" id="videoTitle" placeholder="Nhập tên video...">
-    <input type="text" id="videoLink" placeholder="Dán link video (YouTube, Drive...)">
-    <button class="simple-add-btn" onclick="addVideo()">Lưu Vào Danh Sách</button>
-    <ul id="videoList"></ul>
-
-    <hr>
-
-    <h2>🚀 Đăng Bài Viết Mới</h2>
+    <h2>🚀 Đăng Video Công Khai</h2>
     <div class="input-group">
-        <input type="text" id="title" placeholder="Tiêu đề bài viết...">
+        <input type="text" id="title" placeholder="Tiêu đề video/bài viết...">
         <input type="text" id="imageUrl" placeholder="Link ảnh minh họa (URL)...">
-        <textarea id="multiLinks" placeholder="Dán các link video vào đây (mỗi link 1 dòng)..."></textarea>
-        <input type="password" id="password" class="pwd-input" placeholder="Nhập mã bảo mật để đăng bài...">
-        <button id="addBtn" onclick="createPost()">Đăng Bài Lên Hệ Thống</button>
+        <textarea id="multiLinks" placeholder="Dán link video (mỗi link 1 dòng)..."></textarea>
+        <input type="password" id="password" style="border: 2px solid #fb3958" placeholder="Mã bảo mật để đăng (27nov.tv)">
+        <button onclick="uploadPost()">Đăng Lên Bảng Tin Chung</button>
     </div>
 
-    <h3>Bảng Tin Nội Dung</h3>
-    <ul id="postList"></ul>
+    <div class="public-feed">
+        <h2 style="text-align: center;">📺 BẢNG TIN CÔNG KHAI</h2>
+        <div id="postContainer">Đang tải dữ liệu...</div>
+    </div>
 </div>
 
 <script>
-    // Hàm 1: Thêm video vào danh sách đơn giản
-    function addVideo() {
-        const title = document.getElementById('videoTitle').value;
-        const link = document.getElementById('videoLink').value;
+    // --- CẤU HÌNH FIREBASE (BẠN CẦN THAY THÔNG SỐ CỦA BẠN VÀO ĐÂY) ---
+    // Để lấy thông số này, bạn vào Firebase Console -> Project Settings
+    const firebaseConfig = {
+        apiKey: "AIzaSy...",
+        authDomain: "your-project.firebaseapp.com",
+        databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+        projectId: "your-project",
+        storageBucket: "your-project.appspot.com",
+        messagingSenderId: "...",
+        appId: "..."
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
 
-        if (title === '' || link === '') {
-            alert("Vui lòng nhập đầy đủ thông tin!");
+    // 1. HÀM ĐĂNG BÀI LÊN SERVER
+    function uploadPost() {
+        const title = document.getElementById('title').value;
+        const imageUrl = document.getElementById('imageUrl').value || 'https://via.placeholder.com/400x200';
+        const password = document.getElementById('password').value;
+        const links = document.getElementById('multiLinks').value.split('\n').filter(l => l.trim() !== "");
+
+        if (password !== "27nov.tv") {
+            alert("Sai mật khẩu!");
+            return;
+        }
+        if (!title || links.length === 0) {
+            alert("Vui lòng nhập đủ tin!");
             return;
         }
 
-        const list = document.getElementById('videoList');
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `
-            <span>${title}</span>
-            <a href="${link}" target="_blank" style="color: #007bff; text-decoration: none;">Xem ngay</a>
-        `;
-        list.appendChild(listItem);
-
-        // Xóa form
-        document.getElementById('videoTitle').value = '';
-        document.getElementById('videoLink').value = '';
+        // Đẩy dữ liệu lên nhánh "posts" trên Firebase
+        const newPostRef = database.ref('posts').push();
+        newPostRef.set({
+            title: title,
+            imageUrl: imageUrl,
+            links: links,
+            timestamp: Date.now()
+        }).then(() => {
+            alert("Đã đăng công khai thành công!");
+            document.getElementById('title').value = '';
+            document.getElementById('multiLinks').value = '';
+        });
     }
 
-    // Hàm 2: Tạo bài đăng đầy đủ (có mật khẩu)
-    function createPost() {
-        const title = document.getElementById('title').value;
-        const imageUrl = document.getElementById('imageUrl').value || 'https://via.placeholder.com/400x200?text=No+Image';
-        const password = document.getElementById('password').value;
-        const rawLinks = document.getElementById('multiLinks').value.split('\n');
+    // 2. HÀM LẮNG NGHE DỮ LIỆU (Tự động cập nhật cho TẤT CẢ mọi người)
+    database.ref('posts').orderByChild('timestamp').on('value', (snapshot) => {
+        const postContainer = document.getElementById('postContainer');
+        postContainer.innerHTML = ''; // Xóa tin cũ để render mới
         
-        // 1. Kiểm tra mật khẩu
-        if (password !== "27nov.tv") {
-            alert("❌ Mật khẩu sai! Bạn không có quyền đăng bài.");
+        const data = snapshot.val();
+        if (!data) {
+            postContainer.innerHTML = '<p style="text-align:center">Chưa có video nào được đăng.</p>';
             return;
         }
 
-        // 2. Kiểm tra nội dung trống
-        const links = rawLinks.filter(link => link.trim() !== "");
-        if (!title || links.length === 0) {
-            alert("Vui lòng nhập tiêu đề và ít nhất một đường link!");
-            return;
-        }
-
-        const postList = document.getElementById('postList');
-        const postId = Date.now();
-
-        const postHTML = `
-            <li class="post-card" id="post-${postId}">
-                <img src="${imageUrl}" class="post-image" alt="Thumbnail">
-                <div class="post-content">
-                    <span class="post-title">${title}</span>
-                    <div class="post-links">
-                        ${links.map((link, index) => `<a href="${link.trim()}" target="_blank">▶️ Xem Video ${index + 1}</a>`).join('')}
+        // Chuyển object thành mảng và đảo ngược để tin mới nhất lên đầu
+        Object.keys(data).reverse().forEach(key => {
+            const post = data[key];
+            const postHTML = `
+                <div class="post-card">
+                    <img src="${post.imageUrl}" class="post-image">
+                    <div class="post-content">
+                        <span class="post-title">${post.title}</span>
+                        <div class="links-list">
+                            ${post.links.map((l, i) => `<a href="${l}" target="_blank" class="video-link">▶ Xem Video ${i+1}</a>`).join('')}
+                        </div>
+                        <div class="post-time">Đăng lúc: ${new Date(post.timestamp).toLocaleString()}</div>
                     </div>
                 </div>
-                <div class="post-actions">
-                    <button class="btn-like" onclick="toggleLike(this)">👍 Thích (<span>0</span>)</button>
-                    <button class="btn-delete" onclick="deletePost(${postId})">Xóa</button>
-                </div>
-            </li>
-        `;
-
-        postList.insertAdjacentHTML('afterbegin', postHTML);
-
-        // 3. Xóa sạch form
-        document.getElementById('title').value = '';
-        document.getElementById('imageUrl').value = '';
-        document.getElementById('multiLinks').value = '';
-        document.getElementById('password').value = '';
-        alert("✅ Đăng bài thành công!");
-    }
-
-    function toggleLike(btn) {
-        btn.classList.toggle('liked');
-        let countSpan = btn.querySelector('span');
-        let currentCount = parseInt(countSpan.innerText);
-        countSpan.innerText = btn.classList.contains('liked') ? currentCount + 1 : currentCount - 1;
-    }
-
-    function deletePost(id) {
-        if (confirm("Bạn muốn gỡ bỏ bài đăng này?")) {
-            const post = document.getElementById(`post-${id}`);
-            if(post) post.remove();
-        }
-    }
+            `;
+            postContainer.insertAdjacentHTML('beforeend', postHTML);
+        });
+    });
 </script>
 
 </body>
