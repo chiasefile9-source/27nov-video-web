@@ -17,7 +17,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
 
@@ -31,22 +31,10 @@
             text-align: center;
         }
 
-        h2 {
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-            font-size: 1.5rem;
-        }
+        h2 { color: #1e293b; margin-bottom: 0.5rem; font-size: 1.5rem; }
+        p { color: #64748b; font-size: 0.95rem; margin-bottom: 1.5rem; }
 
-        p {
-            color: #64748b;
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 1rem;
-        }
+        .input-group { margin-bottom: 1rem; }
 
         input {
             width: 100%;
@@ -57,12 +45,10 @@
             transition: all 0.3s;
             box-sizing: border-box;
             outline: none;
+            margin-bottom: 0.5rem;
         }
 
-        input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
+        input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
 
         button {
             width: 100%;
@@ -77,17 +63,10 @@
             transition: background 0.3s;
         }
 
-        button:hover {
-            background-color: #1d4ed8;
-        }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        button:hover:not(:disabled) { background-color: #1d4ed8; }
 
-        #message {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            min-height: 1.2rem;
-            font-weight: 500;
-        }
-
+        #message { margin-top: 1rem; font-size: 0.9rem; min-height: 1.2rem; font-weight: 500; }
         .error { color: var(--error-color); }
         .success { color: #10b981; }
     </style>
@@ -95,51 +74,70 @@
 <body>
 
 <div class="login-card">
-    <h2>🔒 Bảo mật nội dung</h2>
-    <p>Vui lòng nhập mật khẩu được cung cấp để tiếp tục đến liên kết Google Drive.</p>
+    <h2>🔒 Truy cập tài liệu</h2>
+    <p>Vui lòng điền thông tin và mật khẩu.</p>
     
     <div class="input-group">
-        <input type="password" id="pw" placeholder="Nhập mật khẩu tại đây..." autocomplete="off">
+        <input type="text" id="name" placeholder="Họ và tên của bạn" required>
+        <input type="email" id="email" placeholder="Email của bạn" required>
+        <input type="password" id="pw" placeholder="Mật khẩu truy cập">
     </div>
     
-    <button onclick="verify()">Xác nhận truy cập</button>
+    <button id="btnVerify" onclick="verify()">Xác nhận truy cập</button>
     <div id="message"></div>
 </div>
 
 <script>
-    function verify() {
-        const input = document.getElementById('pw').value.trim(); // .trim() để loại bỏ khoảng trắng thừa
+    async function verify() {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const inputPw = document.getElementById('pw').value.trim();
         const msg = document.getElementById('message');
-        
-        // Cấu hình thông tin
+        const btn = document.getElementById('btnVerify');
+
+        // Cấu hình
         const secret = "filenoibo.sagi-eleven";
         const target = "https://drive.google.com/drive/folders/1uFq1-OZcGy_V9w-Qsj3Msx6xlL7hSD4c?usp=sharing";
+        const scriptURL = 'https://docs.google.com/spreadsheets/d/1n_XMHTS7euhWfWtdd7qOFqzm9oAVdpelZodDRi7WJnw/edit?usp=sharing';
 
-        if (input === secret) {
+        // Kiểm tra đầu vào
+        if (!name || !email || !inputPw) {
+            msg.className = "error";
+            msg.innerText = "Vui lòng điền đầy đủ thông tin.";
+            return;
+        }
+
+        if (inputPw !== secret) {
+            msg.className = "error";
+            msg.innerText = "Mật khẩu không chính xác.";
+            return;
+        }
+
+        // Bắt đầu quá trình lưu và chuyển hướng
+        try {
+            btn.disabled = true;
+            msg.className = "";
+            msg.innerText = "Đang xác thực thông tin...";
+
+            // Gửi dữ liệu đi bằng phương thức ẩn (no-cors)
+            await fetch(scriptURL + `?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`, { 
+                method: 'POST' 
+            });
+
             msg.className = "success";
-            msg.innerText = "Mật khẩu đúng! Đang chuyển hướng...";
+            msg.innerText = "Thành công! Đang chuyển hướng...";
             
-            // Chuyển hướng sau 0.5 giây để người dùng kịp thấy thông báo thành công
             setTimeout(() => {
                 window.location.href = target;
-            }, 500);
-        } else if (input === "") {
+            }, 800);
+
+        } catch (error) {
+            console.error('Error!', error.message);
             msg.className = "error";
-            msg.innerText = "Vui lòng không để trống mật khẩu.";
-        } else {
-            msg.className = "error";
-            msg.innerText = "Mật khẩu không chính xác. Thử lại!";
-            document.getElementById('pw').value = ""; // Xóa mật khẩu sai
-            document.getElementById('pw').focus();   // Đưa con trỏ lại ô nhập
+            msg.innerText = "Có lỗi xảy ra, vui lòng thử lại.";
+            btn.disabled = false;
         }
     }
-
-    // Lắng nghe sự kiện phím Enter
-    document.getElementById('pw').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            verify();
-        }
-    });
 </script>
 
 </body>
