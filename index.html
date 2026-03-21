@@ -45,7 +45,7 @@
             transition: all 0.3s;
             box-sizing: border-box;
             outline: none;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.8rem;
         }
 
         input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
@@ -89,52 +89,69 @@
 
 <script>
     async function verify() {
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const inputPw = document.getElementById('pw').value.trim();
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const pwInput = document.getElementById('pw');
         const msg = document.getElementById('message');
         const btn = document.getElementById('btnVerify');
 
-        // Cấu hình
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const inputPw = pwInput.value.trim();
+
+        // --- CẤU HÌNH ---
         const secret = "filenoibo.sagi-eleven";
         const target = "https://drive.google.com/drive/folders/1uFq1-OZcGy_V9w-Qsj3Msx6xlL7hSD4c?usp=sharing";
-        const scriptURL = 'https://docs.google.com/spreadsheets/d/1n_XMHTS7euhWfWtdd7qOFqzm9oAVdpelZodDRi7WJnw/edit?usp=sharing';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwR8zdKPjZ4Czv5p8RLy4mUlrlq9r9-qsQtzqSYSfGkoFq4EgM2sxvVkKdQbG8g6HUOcg/exec';
 
-        // Kiểm tra đầu vào
+        // 1. Kiểm tra để trống
         if (!name || !email || !inputPw) {
             msg.className = "error";
             msg.innerText = "Vui lòng điền đầy đủ thông tin.";
             return;
         }
 
+        // 2. Kiểm tra mật khẩu
         if (inputPw !== secret) {
             msg.className = "error";
             msg.innerText = "Mật khẩu không chính xác.";
             return;
         }
 
-        // Bắt đầu quá trình lưu và chuyển hướng
+        // 3. Tiến hành gửi dữ liệu và chuyển hướng
         try {
             btn.disabled = true;
             msg.className = "";
             msg.innerText = "Đang xác thực thông tin...";
 
-            // Gửi dữ liệu đi bằng phương thức ẩn (no-cors)
-            await fetch(scriptURL + `?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`, { 
-                method: 'POST' 
+            // Sử dụng URLSearchParams để gửi dữ liệu qua POST (tương thích tốt với Apps Script)
+            const params = new URLSearchParams();
+            params.append('name', name);
+            params.append('email', email);
+
+            await fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors', // Quan trọng để tránh lỗi CORS
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: params
             });
 
+            // Hiển thị thông báo thành công
             msg.className = "success";
             msg.innerText = "Thành công! Đang chuyển hướng...";
             
+            // Chuyển hướng sau 1.2 giây
             setTimeout(() => {
                 window.location.href = target;
-            }, 800);
+            }, 1200);
 
         } catch (error) {
-            console.error('Error!', error.message);
+            console.error('Lỗi hệ thống:', error);
             msg.className = "error";
-            msg.innerText = "Có lỗi xảy ra, vui lòng thử lại.";
+            msg.innerText = "Có lỗi kết nối. Vui lòng thử lại sau.";
             btn.disabled = false;
         }
     }
