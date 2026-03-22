@@ -9,6 +9,7 @@
             --primary-color: #2563eb;
             --error-color: #ef4444;
             --bg-color: #f8fafc;
+            --overlay-bg: rgba(0, 0, 0, 0.5);
         }
 
         body {
@@ -69,9 +70,101 @@
         #message { margin-top: 1rem; font-size: 0.9rem; min-height: 1.2rem; font-weight: 500; }
         .error { color: var(--error-color); }
         .success { color: #10b981; }
+
+        /* --- CSS CHO MODAL ĐIỀU KHOẢN --- */
+        #tosModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            border-radius: 12px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tos-body {
+            overflow-y: auto;
+            text-align: left;
+            margin: 1rem 0;
+            padding-right: 10px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        .tos-body h3 { font-size: 1.1rem; color: #1e293b; margin-top: 1rem; }
+        
+        .tos-footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .checkbox-container input { width: auto; margin: 4px 0 0 0; cursor: pointer; }
     </style>
 </head>
 <body>
+
+<div id="tosModal">
+    <div class="modal-content">
+        <h2 style="margin-top:0">📜 Điều Khoản Sử Dụng</h2>
+        <p style="margin-bottom: 5px; font-weight: bold;">Cập nhật lần cuối: 22/03/2026</p>
+        
+        <div class="tos-body">
+            <p>Chào mừng bạn đến với hệ thống ứng dụng của chúng tôi. Khi truy cập và sử dụng dịch vụ, bạn đồng ý tuân thủ các điều khoản sau đây:</p>
+            
+            <h3>1. Chấp thuận điều khoản</h3>
+            <p>Bằng việc đăng nhập vào ứng dụng qua Email, bạn xác nhận đã đọc, hiểu và đồng ý bị ràng buộc bởi các điều khoản này. Nếu không đồng ý, vui lòng ngừng sử dụng ứng dụng ngay lập tức.</p>
+
+            <h3>2. Quyền sở hữu trí tuệ</h3>
+            <p>Toàn bộ tài liệu học tập, bài soạn, mã nguồn và giao diện ứng dụng đều thuộc quyền sở hữu của Admin. Người dùng chỉ được cấp quyền xem và học tập. Mọi hành vi sao chép, phân phối hoặc sử dụng thương mại là vi phạm.</p>
+
+            <h3>3. Tài khoản người dùng</h3>
+            <p>Bạn có trách nhiệm bảo mật thông tin cá nhân. Chúng tôi có quyền tạm khóa hoặc xóa tài khoản nếu phát hiện hành vi gian lận.</p>
+
+            <h3>4. Hành vi bị nghiêm cấm</h3>
+            <p>Cấm chia sẻ link tải hoặc quyền truy cập cho người ngoài. Không sử dụng công cụ can thiệp hệ thống. Không đăng tải nội dung thô tục hoặc vi phạm pháp luật Việt Nam.</p>
+
+            <h3>5. Giới hạn trách nhiệm</h3>
+            <p>Chúng tôi không chịu trách nhiệm về bất kỳ thiệt hại nào phát sinh từ việc sử dụng thông tin trong ứng dụng. Hệ thống có thể bảo trì mà không báo trước.</p>
+
+            <h3>6. Chấm dứt dịch vụ</h3>
+            <p>Admin có quyền chấm dứt quyền truy cập của bất kỳ người dùng nào vi phạm mà không cần hoàn trả quyền lợi.</p>
+        </div>
+
+        <div class="tos-footer">
+            <label class="checkbox-container">
+                <input type="checkbox" id="tosCheck">
+                <span>Tôi đã đọc kỹ và cam kết tuân thủ toàn bộ các điều khoản và nội quy nêu trên.</span>
+            </label>
+            <button id="btnAccept" onclick="acceptTos()" disabled>Đồng ý và Tiếp tục</button>
+        </div>
+    </div>
+</div>
 
 <div class="login-card">
     <h2>🔒 Truy cập tài liệu</h2>
@@ -88,6 +181,21 @@
 </div>
 
 <script>
+    // --- QUẢN LÝ ĐIỀU KHOẢN ---
+    const tosModal = document.getElementById('tosModal');
+    const tosCheck = document.getElementById('tosCheck');
+    const btnAccept = document.getElementById('btnAccept');
+
+    // Theo dõi checkbox để bật nút Đồng ý
+    tosCheck.addEventListener('change', function() {
+        btnAccept.disabled = !this.checked;
+    });
+
+    function acceptTos() {
+        tosModal.style.display = 'none'; // Đóng bảng điều khoản
+    }
+
+    // --- XỬ LÝ XÁC THỰC ---
     async function verify() {
         const nameInput = document.getElementById('name');
         const emailInput = document.getElementById('email');
@@ -99,51 +207,42 @@
         const email = emailInput.value.trim();
         const inputPw = pwInput.value.trim();
 
-        // --- CẤU HÌNH ---
         const secret = "filenoibo.sagi-eleven";
         const target = "https://drive.google.com/drive/folders/1uFq1-OZcGy_V9w-Qsj3Msx6xlL7hSD4c?usp=sharing";
         const scriptURL = 'https://script.google.com/macros/s/AKfycbwR8zdKPjZ4Czv5p8RLy4mUlrlq9r9-qsQtzqSYSfGkoFq4EgM2sxvVkKdQbG8g6HUOcg/exec';
 
-        // 1. Kiểm tra để trống
         if (!name || !email || !inputPw) {
             msg.className = "error";
             msg.innerText = "Vui lòng điền đầy đủ thông tin.";
             return;
         }
 
-        // 2. Kiểm tra mật khẩu
         if (inputPw !== secret) {
             msg.className = "error";
             msg.innerText = "Mật khẩu không chính xác.";
             return;
         }
 
-        // 3. Tiến hành gửi dữ liệu và chuyển hướng
         try {
             btn.disabled = true;
             msg.className = "";
             msg.innerText = "Đang xác thực thông tin...";
 
-            // Sử dụng URLSearchParams để gửi dữ liệu qua POST (tương thích tốt với Apps Script)
             const params = new URLSearchParams();
             params.append('name', name);
             params.append('email', email);
 
             await fetch(scriptURL, {
                 method: 'POST',
-                mode: 'no-cors', // Quan trọng để tránh lỗi CORS
+                mode: 'no-cors',
                 cache: 'no-cache',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: params
             });
 
-            // Hiển thị thông báo thành công
             msg.className = "success";
             msg.innerText = "Thành công! Đang chuyển hướng...";
             
-            // Chuyển hướng sau 1.2 giây
             setTimeout(() => {
                 window.location.href = target;
             }, 1200);
